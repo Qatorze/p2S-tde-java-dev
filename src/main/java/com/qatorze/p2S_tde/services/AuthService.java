@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.qatorze.p2S_tde.dtos.RegisterRequestDTO;
 import com.qatorze.p2S_tde.dtos.UserResponseDTO;
-import com.qatorze.p2S_tde.exceptions.UserEmailAlreadyInUse;
+import com.qatorze.p2S_tde.exceptions.UserEmailAlreadyInUseException;
 import com.qatorze.p2S_tde.exceptions.InvalidCredentialsException;
 import com.qatorze.p2S_tde.mapper.UserConverter;
 import com.qatorze.p2S_tde.models.User;
@@ -66,7 +66,7 @@ public class AuthService {
 		// Vérifie si l'email est déjà utilisé.
 		Optional<User> optUser = userRepository.findByEmail(registerRequestDTO.getEmail());
         if (optUser.isPresent()) {
-            throw new UserEmailAlreadyInUse();
+            throw new UserEmailAlreadyInUseException();
         }  
         
         // Convertit le DTO en modèle User pour le stocker en base.
