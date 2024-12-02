@@ -62,7 +62,7 @@ public class AuthRestController {
      * Définit un cookie pour le token JWT.
      */
     private void setTokenInCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie("JSON_Web_Token", token);
+        Cookie cookie = new Cookie("p2s_tde_JSON_Web_Token", token);
         cookie.setHttpOnly(true); // Rend le cookie inaccessible au JavaScript pour protéger contre les attaques XSS.
         // cookie.setSecure(true); // Utiliser uniquement pour HTTPS (décommenter pour les environnements sécurisés, c'est à dire en production).
         cookie.setPath("/"); // Rendre le cookie accessible sur toute l'application.
