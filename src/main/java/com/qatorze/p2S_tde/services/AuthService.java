@@ -30,6 +30,10 @@ public class AuthService {
     
     @Autowired
     private JwtService jwtService; // Service de gestion des JWT.
+    
+    @Autowired
+    private PasswordValidatorService passwordValidatorService; // Iniezione del servizio di validazione
+
 	
     /**
      * Authentifie un utilisateur à partir de son email et mot de passe.
@@ -89,5 +93,24 @@ public class AuthService {
 	   
 	    return userResponse;
     }
+	
+	public void changePassword(String email, String oldPassword, String newPassword) {
+	    User user = userRepository.findByEmail(email)
+	            .orElseThrow(() -> new RuntimeException("User not found"));
+
+	    // Verifica che la vecchia password sia corretta
+	    if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+	        throw new RuntimeException("Old password is incorrect");
+	    }
+
+	    passwordValidatorService.validateNewPassword(newPassword, user);
+
+	    String hashedNewPassword = passwordEncoder.encode(newPassword);
+	    user.addPasswordToHistory(hashedNewPassword);
+	    // Aggiorna la password con la nuova se la nuova password non fa parte delle ultime 5
+	    user.setPassword(hashedNewPassword);
+	    userRepository.save(user);
+	}
+	
 }
 

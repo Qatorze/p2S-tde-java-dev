@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.qatorze.p2S_tde.dtos.ChangePasswordRequestDTO;
 import com.qatorze.p2S_tde.dtos.LoginRequestDTO;
 import com.qatorze.p2S_tde.dtos.RegisterRequestDTO;
 import com.qatorze.p2S_tde.dtos.UserResponseDTO;
@@ -56,6 +57,24 @@ public class AuthRestController {
         // Retourne l'utilisateur enregistré avec son token.
         newUserDTO.setToken(token);
         return ResponseEntity.ok(newUserDTO);
+    }
+    
+    /**
+     * Endpoint pour changer le mot de passe de l'utilisateur.
+     */
+    @PostMapping("/password-change")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) {
+        try {
+            // Appelle le service pour changer le mot de passe de l'utilisateur.
+            authService.changePassword(changePasswordRequestDTO.getEmail(),
+                    changePasswordRequestDTO.getOldPassword(),
+                    changePasswordRequestDTO.getNewPassword());
+            // Retourne une réponse de succès.
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (Exception e) {
+            // En cas d'erreur, retourne une réponse avec un message d'erreur.
+            return ResponseEntity.badRequest().body("Error changing password: " + e.getMessage());
+        }
     }
     
     /**

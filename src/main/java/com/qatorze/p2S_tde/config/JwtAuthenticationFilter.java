@@ -51,8 +51,40 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     	 // Vérifie si l'utilisateur essaie de s'enregistrer.
         if (request.getRequestURI().contains("/register")) {
             return handleRegister(request, response);
+        }else if (request.getRequestURI().contains("/password-change")) {
+            handlePasswordChange(request, response); // Aggiungi questa gestione
+            return null; // Nessuna autenticazione necessaria per il cambio password
         }
         return handleLogin(request, response);
+    }
+    
+    /**
+     * Gestisce il cambio della password.
+     */
+    private void handlePasswordChange(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            // Recupera i parametri dalla richiesta.
+            String email = request.getParameter("email");
+            String oldPassword = request.getParameter("oldPassword");
+            String newPassword = request.getParameter("newPassword");
+
+            // Chiama il servizio per aggiornare la password.
+            authService.changePassword(email, oldPassword, newPassword);
+
+            // Restituisci una risposta di successo.
+            response.setStatus(HttpServletResponse.SC_OK); // 200 OK
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\": \"Password changed successfully\"}");
+        } catch (Exception e) {
+            // In caso di errore restituisci una risposta 400 Bad Request.
+            try {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400 Bad Request
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
     }
     
     /**

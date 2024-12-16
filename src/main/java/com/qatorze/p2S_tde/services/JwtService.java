@@ -11,20 +11,20 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.qatorze.p2S_tde.dtos.UserResponseDTO;
 
-@Service // Annotation pour déclarer cette classe comme un service.
+@Service
 public class JwtService {
-	
-	@Value("${jwt.secret.key}")
-	private String SECRET_KEY; // Clé secrète utilisée pour signer les JWT.
+    
+    @Value("${jwt.secret.key}")
+    private String SECRET_KEY; // Clé secrète utilisée pour signer les JWT.
 
-	public String generateToken(UserResponseDTO user) {
+    public String generateToken(UserResponseDTO user) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY); // Définit l'algorithme de signature.
         
         /**
          * Génère un token JWT à partir d'un utilisateur.
          */
-        return JWT.create()
-        		 .withSubject(user.getEmail()) // Définit l'utilisateur comme sujet.
+        String token = JWT.create()
+                 .withSubject(user.getEmail()) // Définit l'utilisateur comme sujet.
                  .withIssuedAt(new Date()) // Date d'émission.
                  .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // Expiration dans 24 heures.
                  .withClaim("id", user.getId()) // Ajoute les informations utilisateur dans les claims.
@@ -34,13 +34,18 @@ public class JwtService {
                  .withClaim("email", user.getEmail())
                  .withClaim("imagePath", user.getImagePath())
                  .sign(algorithm); // Signe le token.
+        
+        // Affiche le token généré
+        System.out.println("Generated JWT Token jwtService generateToken: " + token);
+
+        return token;
     }
 
-	/**
+    /**
      * Valide un token JWT et retourne les informations utilisateur.
      */
-	public UserResponseDTO validateTokenAndGetUser(String token) {
-		Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY); // Même algorithme que pour la génération.
+    public UserResponseDTO validateTokenAndGetUser(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY); // Même algorithme que pour la génération.
         JWTVerifier verifier = JWT.require(algorithm).build(); // Crée un vérificateur.
         DecodedJWT decodedJWT = verifier.verify(token); // Vérifie et décode le token.
 
@@ -56,4 +61,5 @@ public class JwtService {
         UserResponseDTO user = new UserResponseDTO(id, surname, name, role, email, imagePath);
         return user;
     }
+
 }

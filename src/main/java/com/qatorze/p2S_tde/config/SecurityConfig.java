@@ -3,6 +3,7 @@ package com.qatorze.p2S_tde.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -65,10 +66,20 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // "Désactive CSRF pour les APIs stateless, car pas necessaire dans le cas des applications basées sur JWT car il n'existe pas de session coté server.
             .authorizeHttpRequests((requests) -> requests
+            		 // Permetti l'accesso pubblico a tutti gli endpoint delle proprietà
+                    .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()  // Permette l'accesso pubblico a tutti i GET per /api/properties/**
+                    .requestMatchers(HttpMethod.POST, "/api/properties/**").permitAll() // Permette l'accesso pubblico a tutti i POST per /api/properties/**
+                    .requestMatchers(HttpMethod.PUT, "/api/properties/**").permitAll()  // Permette l'accesso pubblico a tutti i PUT per /api/properties/**
+                    .requestMatchers(HttpMethod.DELETE, "/api/properties/**").permitAll() // Permette l'accesso pubblico a tutti i DELETE per /api/properties/**
+
             		.requestMatchers("/api/auth/**").permitAll() // Endpoint public, comme login e register, accéssibles sans authentication, donc sans token.
+            		.requestMatchers("/api/password-reset/request").permitAll()
+            		.requestMatchers("/api/password-reset/reset").permitAll()
+            		.requestMatchers("/api/password-reset/change").authenticated()
+            		.requestMatchers("/password-change").authenticated()
             		.requestMatchers("/api/admin/**").hasRole("admin") // Questa riga specifica che solo gli utenti con il ruolo admin possono accedere agli endpoint che iniziano con /api/admin/.
             		.requestMatchers("/api/user/**").hasRole("user") // Questa riga specifica che solo gli utenti con il ruolo user possono accedere agli endpoint che iniziano con /api/user/.
-            		.anyRequest().authenticated() // Tous les endpoints necessittent d'un token JWT valide pour l'access.
+            		.anyRequest().authenticated() //.permitAll() Tous les endpoints necessittent d'un token JWT valide pour l'access.
              )
             .exceptionHandling(exception -> exception
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint) // Définit un point d'entrée pour les erreurs
