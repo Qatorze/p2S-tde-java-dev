@@ -61,7 +61,7 @@ public class PasswordResetService {
         user.setPasswordResetTokenCreatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String resetLink = "http://localhost:8082/reset-password?token=" + encodedToken;
+        String resetLink = "http://localhost:4200/auth/reset-password?token=" + encodedToken;
         try {
             emailSender.sendEmail(user.getEmail(), "Demande de réinitialisation de mot de passe",
                     "Bonjour " + user.getName() + ",\n\n" +
@@ -109,6 +109,8 @@ public class PasswordResetService {
         try {
             // Décodage du token Base64
             decodedToken = new String(Base64.getDecoder().decode(token));
+            System.out.println("Decoded token: " + decodedToken); // Log per il token decodificato
+            
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Le token est invalide : erreur de décodage.");
         }
@@ -120,10 +122,11 @@ public class PasswordResetService {
         }
 
         user = optionalUser.get();
+        System.out.println("User found: " + user.getEmail()); // Log per l'utente trovato
 
         // Vérification de la validité temporelle du token
         LocalDateTime tokenCreationTime = user.getPasswordResetTokenCreatedAt();
-        if (tokenCreationTime == null || tokenCreationTime.isBefore(LocalDateTime.now().minusMinutes(5))) {
+        if (tokenCreationTime == null || tokenCreationTime.isBefore(LocalDateTime.now().minusMinutes(30))) {
             throw new IllegalArgumentException("Le token est expiré. Veuillez en générer un nouveau.");
         }
 

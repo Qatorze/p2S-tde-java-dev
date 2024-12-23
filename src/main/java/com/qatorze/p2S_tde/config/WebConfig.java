@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**") // Applica la configurazione a tutte le richieste che iniziano con "/api/"
-                .allowedOrigins("http://localhost:8080") //(8080 pour postMan) Consenti richieste solo dal dominio http://localhost:4200 (front-end Angular)
+                .allowedOrigins("http://localhost:4200") //(8080 pour postMan) Consenti richieste solo dal dominio http://localhost:4200 (front-end Angular)
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // Consenti solo i metodi HTTP GET, POST, PUT e DELETE
                 .allowedHeaders("*") // Consenti tutte le intestazioni (permette qualsiasi header nelle richieste)
                 .allowCredentials(true); // Abilita l'invio e la ricezione dei cookie e altre credenziali (utile per l'autenticazione tramite cookie JWT)

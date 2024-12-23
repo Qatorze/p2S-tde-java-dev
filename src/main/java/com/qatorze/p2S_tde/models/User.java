@@ -213,10 +213,9 @@ public class User {
      * @throws IllegalArgumentException Si le mot de passe est déjà dans l'historique.
      */
     public void addPasswordToHistory(String hashedPassword) {
-        if (isPasswordInHistory(hashedPassword)) {
+        if (isPasswordInHistory(hashedPassword)) {	
             throw new IllegalArgumentException("Le password non possono essere riutilizzate tra le 5 più recenti.");
         }
-
         if (this.previousPasswords.size() >= 5) {
             this.previousPasswords.remove(0); // Rimuovi la più vecchia
         }

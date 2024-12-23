@@ -12,7 +12,7 @@ public class UserResponseDTO {
     private String role; // Rôle de l'utilisateur (exemple : "user", "admin").
     private String email; // Adresse e-mail de l'utilisateur.
     private String imagePath; // Chemin ou URL de l'image de profil de l'utilisateur.
-    private String token; // Token JWT pour la session de l'utilisateur.
+   
 
     /**
      * Constructeur par défaut.
@@ -90,12 +90,6 @@ public class UserResponseDTO {
         this.imagePath = imagePath;
     }
 
-    public String getToken() {
-        return token;
-    }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
 }
 

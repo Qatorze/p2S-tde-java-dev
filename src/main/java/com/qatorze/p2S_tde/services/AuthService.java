@@ -28,8 +28,6 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder; // Encodage des mots de passe pour la sécurité.
     
-    @Autowired
-    private JwtService jwtService; // Service de gestion des JWT.
     
     @Autowired
     private PasswordValidatorService passwordValidatorService; // Iniezione del servizio di validazione
@@ -55,9 +53,7 @@ public class AuthService {
 	    // Convertit l'utilisateur en DTO pour répondre au front-end.
 	    UserResponseDTO userResponse = userConverter.convertUserToUserResponseDTO(user);
 	    
-	    // Génère un token JWT pour cet utilisateur.
-	    String token = jwtService.generateToken(userResponse);
-	    userResponse.setToken(token); // Ajoute le token à la réponse.
+	  
 	   
 	    return userResponse;
 	}
@@ -86,21 +82,18 @@ public class AuthService {
         // Convertit l'utilisateur sauvegardé en DTO pour la réponse.
         UserResponseDTO userResponse = userConverter.convertUserToUserResponseDTO(savedUser);
         
-        // Génère un token JWT pour le nouvel utilisateur.
-	    String token = jwtService.generateToken(userResponse);
-	    
-	    userResponse.setToken(token); // Ajoute le token à la réponse.
+       
 	   
 	    return userResponse;
     }
 	
 	public void changePassword(String email, String oldPassword, String newPassword) {
 	    User user = userRepository.findByEmail(email)
-	            .orElseThrow(() -> new RuntimeException("User not found"));
+	            .orElseThrow(() -> new RuntimeException("L'email inserée n'est pas associée à ce compte."));
 
 	    // Verifica che la vecchia password sia corretta
 	    if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-	        throw new RuntimeException("Old password is incorrect");
+	        throw new RuntimeException("Le mot de passe courant est incorrecte.");
 	    }
 
 	    passwordValidatorService.validateNewPassword(newPassword, user);

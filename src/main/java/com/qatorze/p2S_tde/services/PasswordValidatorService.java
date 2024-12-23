@@ -23,11 +23,10 @@ public class PasswordValidatorService {
         if (newPassword.length() < 8) {
             throw new IllegalArgumentException("Le mot de passe doit comporter au moins 8 caractères.");
         }
-
         // Verifica che la nuova password non sia tra le ultime 5
         for (String previousPassword : user.getPreviousPasswords()) {
             if (passwordEncoder.matches(newPassword, previousPassword)) {
-                throw new IllegalArgumentException("Le mot de passe ne peut pas être identique à l'un des cinq derniers.");
+                throw new IllegalArgumentException("Le nouveau mot de passe ne peut pas être identique à l'un des cinq derniers utilisés.");
             }
         }
     }

@@ -18,5 +18,10 @@
     "name": "jwt.secret.key",
     "type": "java.lang.String",
     "description": "A description for 'jwt.secret.key'"
+  },
+  {
+    "name": "csrf.secret.key",
+    "type": "java.lang.String",
+    "description": "A description for 'csrf.secret.key'"
   }
 ]}

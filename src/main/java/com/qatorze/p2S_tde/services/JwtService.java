@@ -1,6 +1,7 @@
 package com.qatorze.p2S_tde.services;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,43 +14,33 @@ import com.qatorze.p2S_tde.dtos.UserResponseDTO;
 
 @Service
 public class JwtService {
-    
+
     @Value("${jwt.secret.key}")
-    private String SECRET_KEY; // Clé secrète utilisée pour signer les JWT.
+    private String SECRET_KEY;
+
+    @Value("${csrf.secret.key}")
+    private String CSRF_SECRET_KEY;
 
     public String generateToken(UserResponseDTO user) {
-        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY); // Définit l'algorithme de signature.
-        
-        /**
-         * Génère un token JWT à partir d'un utilisateur.
-         */
-        String token = JWT.create()
-                 .withSubject(user.getEmail()) // Définit l'utilisateur comme sujet.
-                 .withIssuedAt(new Date()) // Date d'émission.
-                 .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // Expiration dans 24 heures.
-                 .withClaim("id", user.getId()) // Ajoute les informations utilisateur dans les claims.
-                 .withClaim("surname", user.getSurname())
-                 .withClaim("name", user.getName())
-                 .withClaim("role", user.getRole())
-                 .withClaim("email", user.getEmail())
-                 .withClaim("imagePath", user.getImagePath())
-                 .sign(algorithm); // Signe le token.
-        
-        // Affiche le token généré
-        System.out.println("Generated JWT Token jwtService generateToken: " + token);
-
-        return token;
+        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+        return JWT.create()
+                .withSubject(user.getEmail())
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 ore
+                .withClaim("id", user.getId())
+                .withClaim("surname", user.getSurname())
+                .withClaim("name", user.getName())
+                .withClaim("role", user.getRole())
+                .withClaim("email", user.getEmail())
+                .withClaim("imagePath", user.getImagePath())
+                .sign(algorithm);
     }
 
-    /**
-     * Valide un token JWT et retourne les informations utilisateur.
-     */
     public UserResponseDTO validateTokenAndGetUser(String token) {
-        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY); // Même algorithme que pour la génération.
-        JWTVerifier verifier = JWT.require(algorithm).build(); // Crée un vérificateur.
-        DecodedJWT decodedJWT = verifier.verify(token); // Vérifie et décode le token.
+        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
 
-        // Récupère les informations utilisateur des claims.
         Long id = decodedJWT.getClaim("id").asLong();
         String surname = decodedJWT.getClaim("surname").asString();
         String name = decodedJWT.getClaim("name").asString();
@@ -57,9 +48,33 @@ public class JwtService {
         String email = decodedJWT.getClaim("email").asString();
         String imagePath = decodedJWT.getClaim("imagePath").asString();
 
-        // Retourne un UserResponseDTO avec les données extraites.
-        UserResponseDTO user = new UserResponseDTO(id, surname, name, role, email, imagePath);
-        return user;
+        return new UserResponseDTO(id, surname, name, role, email, imagePath);
     }
 
+    /**
+     * Genera un token CSRF utilizzando un identificativo univoco.
+     */
+    public String generateCsrfToken() {
+        Algorithm algorithm = Algorithm.HMAC256(CSRF_SECRET_KEY);
+        return JWT.create()
+                .withSubject("CSRF-TOKEN")
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 ore
+                .withClaim("csrf", UUID.randomUUID().toString())
+                .sign(algorithm);
+    }
+
+    /**
+     * Valida il token CSRF ricevuto.
+     */
+    public boolean validateCsrfToken(String csrfToken) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(CSRF_SECRET_KEY);
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            verifier.verify(csrfToken);
+            return true; // Token valido
+        } catch (Exception e) {
+            return false; // Token non valido
+        }
+    }
 }

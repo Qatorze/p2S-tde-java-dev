@@ -26,14 +26,16 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtService jwtService; 
+    private final JwtCsrfFilter jwtCsrfFilter;
 	private final AuthService authService; 
 
 	// L'annotation @Lazy permet de différer l'initialisation de l'objet AuthService 
 	// jusqu'à ce qu'il soit explicitement requis. Cela peut éviter des problèmes de dépendance circulaire
 	// ou améliorer les performances au démarrage si le bean n'est pas immédiatement nécessaire.
-    public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtService jwtService,@Lazy AuthService authService) {
+    public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtService jwtService,@Lazy AuthService authService, JwtCsrfFilter jwtCsrfFilter) {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtService = jwtService;
+		this.jwtCsrfFilter = jwtCsrfFilter;
         this.authService = authService; 
     }
     
@@ -87,6 +89,7 @@ public class SecurityConfig {
             .sessionManagement(management -> management
             		.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // On applique une gestion des sessions "stateless" (aucun session entre deux requètes lato server)
             )	
+            .addFilterBefore(jwtCsrfFilter, UsernamePasswordAuthenticationFilter.class) // Ajoute le filtre JWTCsrf avant le filtre predefinit.
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Ajoute le filtre JWT avant le filtre predefinit.
 
          return http.build(); // Retourne la configuration.

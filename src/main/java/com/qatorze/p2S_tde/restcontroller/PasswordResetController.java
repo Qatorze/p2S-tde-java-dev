@@ -3,6 +3,10 @@ package com.qatorze.p2S_tde.restcontroller;
 import com.qatorze.p2S_tde.dtos.PasswordResetRequestDTO;
 import com.qatorze.p2S_tde.dtos.PasswordResetDTO;
 import com.qatorze.p2S_tde.services.PasswordResetService;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,26 +27,42 @@ public class PasswordResetController {
      * Reçoit un email et envoie un email avec le lien pour la réinitialisation.
      */
     @PostMapping("/request")
-    public ResponseEntity<String> requestPasswordReset(@RequestBody PasswordResetRequestDTO request) {
+    public ResponseEntity<Map<String, String>> requestPasswordReset(@RequestBody PasswordResetRequestDTO request) {
         try {
             passwordResetService.initiatePasswordReset(request);
-            return ResponseEntity.ok("Lien de réinitialisation de mot de passe envoyé à votre email");
+            
+            // Restituisci un oggetto JSON con il messaggio
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Lien de réinitialisation de mot de passe envoyé à votre email");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // In caso di errore, restituisci il messaggio di errore come JSON
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
+
 
     /**
      * Point de terminaison pour effectuer la réinitialisation du mot de passe avec le token.
      * Reçoit un token et le nouveau mot de passe pour mettre à jour celui de l'utilisateur.
      */
     @PostMapping("/reset")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDTO resetDTO) {
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody PasswordResetDTO resetDTO) {
         try {
+        	System.out.println(resetDTO.getToken()+ " "+ resetDTO.getNewPassword());
             passwordResetService.resetPassword(resetDTO);
-            return ResponseEntity.ok("Mot de passe réinitialisé avec succès");
+            
+            // Restituisci un oggetto JSON con il messaggio
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Mot de passe réinitialisé avec succès");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        	 // In caso di errore, restituisci il messaggio di errore come JSON
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }
